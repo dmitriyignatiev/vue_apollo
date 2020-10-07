@@ -69,9 +69,20 @@
 <script>
 
 import draggable from "vuedraggable";
-// import { useMutation } from '@vue/apollo-composable'
+
 import gql from 'graphql-tag';
 
+const GET_ALL_USERS = gql`
+    query allUsers{
+    allUsers{
+          edges{
+          node{
+          id
+          }
+          }
+      }
+      }
+`
 
 const createU = gql`
     mutation createUser($name:String){
@@ -79,12 +90,26 @@ const createU = gql`
      ok
      }
     }
-
-
 `
+
 
 export default {
   name: 'App',
+
+  components: {
+    draggable
+  },
+  data(){
+    return{
+      newTask:"",
+
+      arrBacklog:[],
+      arrInprogress:[],
+      arrTested:[],
+      arrDone:[],
+    }
+  },
+
   apollo: {
     allUsers: gql`query {
             allUsers{
@@ -96,42 +121,30 @@ export default {
             }
            }
           }`,
-  },
-  components: {
-    draggable
-  },
-  data(){
-    return{
-      newTask:"",
-      arrBacklog:[
-        {name:'Code refactoring1'},
-        {name:'Code refactoring2'},
-        {name:'Code refactoring3'},
-        {name:'Code refactoring4'}
-      ],
-      arrInprogress:[],
-      arrTested:[],
-      arrDone:[],
-    }
+
   },
   methods: {
     add() {
       if (this.newTask) {
         this.arrBacklog.push({name: this.newTask});
         this.newTask = "";
+
       }
     },
 
      onClicked() {
       console.log('Hi')
+       this.arrBacklog.push({name: this.newTask})
        this.$apollo.mutate({
         mutation: createU,
          variables:{
-          name: this.name
+          name: this.newTask
          },
 
 
-      }).then(() => {console.log('Done', this.name)})
+
+      })
+       return this.arrBacklog
     },
   }}
 </script>
